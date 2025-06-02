@@ -11,6 +11,8 @@ private:
     State current;
     State* pending;
 
+    bool collision = false;
+
     double mass;
     double radius;
 
@@ -23,7 +25,7 @@ public:
 
     std::string getName() const;
 
-    double getPot(const Vector3& p, Vector3 offset) const;
+    double getPot(const Vector3& p, Vector3 offset = Vector3()) const;
 
     void compute(const Vector3& force);
 
@@ -32,9 +34,11 @@ public:
         mass += a;
     }
 
-    Vector3 getPos() const;
+    const Vector3& getPos() const;
 
-    Vector3 getVel() const;
+    const Vector3& getVel() const;
+
+    void setVel(const Vector3& v);
 
     void reset();
 
@@ -43,6 +47,11 @@ public:
     double getRadius() const;
 
     double getMass() const;
+
+    bool collisionEnabled() const
+    {
+        return collision;
+    }
 };
 
 #endif

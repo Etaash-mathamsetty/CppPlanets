@@ -1,7 +1,7 @@
 #include "Body.hpp"
 
 Body::Body(const std::string& name, const State& initial, double mass, double radius)
-    : name(name), initial(initial), current(initial.clone()), pending(nullptr),
+    : name(name), initial(initial), current(initial), pending(nullptr),
       mass(mass), radius(radius) {}
 
 Body::~Body() {
@@ -20,28 +20,32 @@ void Body::compute(const Vector3& force) {
     Vector3 a = force.div(mass);
     if (pending)
         delete pending;
-    pending = new State(current.clone());
+    pending = new State(current);
     Vector3 updatedVel = pending->getVel().add(a.times(dt));
     pending->setVel(updatedVel);
     Vector3 updatedPos = pending->getPos().add(updatedVel.times(dt));
     pending->setPos(updatedPos);
 }
 
-Vector3 Body::getPos() const {
+const Vector3& Body::getPos() const {
     return current.getPos();
 }
 
-Vector3 Body::getVel() const {
+const Vector3& Body::getVel() const {
     return current.getVel();
 }
 
+void Body::setVel(const Vector3& v) {
+    current.setVel(v);
+}
+
 void Body::reset() {
-    current = initial.clone();
+    current = initial;
 }
 
 void Body::commit() {
     if (pending) {
-        current = pending->clone();
+        current = *pending;
         delete pending;
         pending = nullptr;
     }

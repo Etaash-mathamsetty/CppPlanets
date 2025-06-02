@@ -11,13 +11,11 @@ private:
 public:
     State(const Vector3& p, const Vector3& v);
 
-    Vector3 getPos() const;
+    const Vector3& getPos() const;
     void setPos(const Vector3& p);
 
-    Vector3 getVel() const;
+    const Vector3& getVel() const;
     void setVel(const Vector3& v);
-
-    State clone() const;
 };
 
 #endif

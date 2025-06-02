@@ -19,9 +19,11 @@ if(WIN32)
 else()
   file(GLOB CPP_SOURCES *.cpp imgui/*.cpp)
 endif()
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(SOURCES ${C_SOURCES} ${CPP_SOURCES})
 #set(WEBOTS_HOME "/snap/webots/current/usr/share/webots")
+
+add_compile_options(-O2)
 
 # Setup the target executable.
 add_executable(${PROJECT} ${SOURCES})

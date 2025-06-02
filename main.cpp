@@ -9,6 +9,7 @@
 #include <algorithm>
 #include "Body.hpp"
 #include "World.hpp"
+#include "imgui/implot3d.h"
 
 ImPlotPoint getPoint(int idx, void *data) {
     Body *a = (Body *)data;
@@ -36,6 +37,7 @@ int main()
 
     ImGui::StyleColorsDark();
     ImPlot::CreateContext();
+    ImPlot3D::CreateContext();
 
     ImGui_ImplSDL3_InitForSDLGPU(window);
     {
@@ -46,14 +48,18 @@ int main()
         ImGui_ImplSDLGPU3_Init(&info);
     }
 
+    srand(time(NULL));
+
     World world;
-    world.addBody(new Body("a", State(Vector3(0, 0, 0), Vector3()), 500, 4));
-    world.addBody(new Body("b", State(Vector3(46, 0, 0), Vector3(5, 9,0)), 0.7, 1));
-    world.addBody(new Body("c", State(Vector3(-40, 0, 0), Vector3(5, -9,0)), 0.9, 1));
-    world.addBody(new Body("d", State(Vector3(46, -40, 0), Vector3(-1250, -1250,0)), 0.7, 1));
-    world.addBody(new Body("e", State(Vector3(-40, -20, 0), Vector3(1250, -1250,0)), 0.9, 1));
-    world.addBody(new Body("f", State(Vector3(46, 30, 0), Vector3(5, 9,0)), 1.3, 1));
-    world.addBody(new Body("g", State(Vector3(-40, 20, 0), Vector3(5, -9,0)), 0.9, 1));
+    world.addBody(new Body("a", State(Vector3(0, 0, 0), Vector3()), 0.5 * 1e5, 20));
+
+    for (int i = 0; i < 0.1 * 1e4; i++)
+    {
+        world.addBody(new Body("particles", State(
+            Vector3((double)rand() / RAND_MAX * 20 - 10, (double)rand() / RAND_MAX * 20 - 10, (double)rand() / RAND_MAX * 20 - 10),
+            Vector3((double)rand() / RAND_MAX * 20000 - 10000, (double)rand() / RAND_MAX * 20000 - 10000, (double)rand() / RAND_MAX * 20000 - 10000)),
+            (double)rand() / RAND_MAX + 0.01, 0.3));
+    }
 
     bool quit = false;
     while(!quit) {
@@ -90,15 +96,28 @@ int main()
             ImGui::SetNextWindowPos(ImVec2(0,0));
             if(ImGui::Begin("Main Window", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar))
             {
-                if(ImPlot::BeginPlot("Body plot", ImVec2(w-15, h-70))) {
+                if(ImPlot3D::BeginPlot("Body plot", ImVec2(w-15, h-70))) {
+
+                    std::vector<double> x;
+                    std::vector<double> y;
+                    std::vector<double> z;
+
+                    x.reserve(world.getBodies().size());
+                    y.reserve(world.getBodies().size());
+                    z.reserve(world.getBodies().size());
 
                     for (auto * b : world.getBodies())
                     {
-                        ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle, b->getRadius() * 3);
-                        ImPlot::PlotScatterG(b->getName().c_str(), getPoint, b, 1);
+                        x.push_back(b->getPos().getX());
+                        y.push_back(b->getPos().getY());
+                        z.push_back(b->getPos().getZ());
                     }
 
-                    ImPlot::EndPlot();
+
+                    ImPlot3D::SetNextMarkerStyle(ImPlot3DMarker_Circle, 1.2);
+                    ImPlot3D::PlotScatter("Particles", x.data(), y.data(), z.data(), x.size());
+
+                    ImPlot3D::EndPlot();
                 }
                 if (ImGui::Button("Reset")) {
                     world.reset();

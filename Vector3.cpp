@@ -27,7 +27,7 @@ Vector3 Vector3::add(const Vector3& v) const {
 }
 
 Vector3 Vector3::minus(const Vector3& v) const {
-    return add(v.negate());
+    return Vector3(x - v.x, y - v.y, z - v.z);
 }
 
 double Vector3::norm() const {
